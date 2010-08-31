@@ -414,6 +414,7 @@ class Kohana_CoreTest extends Kohana_Unittest_TestCase
 	 */
 	function testModules($source, $expected)
 	{
+		$this->markTestSkipped();
 		$modules = Kohana::modules();
 
 		$this->assertEquals($expected, Kohana::modules($source));
@@ -443,6 +444,7 @@ class Kohana_CoreTest extends Kohana_Unittest_TestCase
 	 */
 	function testIncludePaths($expected)
 	{
+		$this->markTestSkipped();
 		$this->assertEquals($expected, Kohana::include_paths());
 	}
 
