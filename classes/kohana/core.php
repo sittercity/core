@@ -851,7 +851,7 @@ class Kohana_Core {
 			}
 
 			// Write the cache
-			return (bool) file_put_contents($dir.$file, serialize($data));
+			return (bool) file_put_contents($dir.$file, serialize($data), LOCK_EX);
 		}
 		catch (Exception $e)
 		{
