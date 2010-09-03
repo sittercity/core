@@ -797,8 +797,11 @@ class Kohana_Core {
 					if ((time() - filemtime($dir.$file)) < $lifetime)
 					{
 						// Return the cache
-						$cache = @unserialize(file_get_contents($dir.$file));
-						if ( ! $cache)
+						try
+						{
+							return unserialize(file_get_contents($dir.$file));
+						}
+						catch (Exception $e)
 						{
 							// Log some things
 							$log_level = self::ERROR;
@@ -809,10 +812,15 @@ class Kohana_Core {
 							self::log($log_level, $ecode, 'filemtime: ' . filemtime($dir.$file));
 							self::log($log_level, $ecode, '(time() - filemtime($dir.$file)): ' . (time() - filemtime($dir.$file)));
 
-							unlink($dir.$file);
+							try
+							{
+								// Cache has expired
+								unlink($dir.$file);
+							}
+							catch (Exception $e) {}
+
 							return NULL;
 						}
-						return $cache;
 					}
 					else
 					{
