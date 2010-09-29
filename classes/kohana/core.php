@@ -821,13 +821,12 @@ class Kohana_Core {
 						catch (Exception $e)
 						{
 							// Log some things
-							$log_level = self::ERROR;
 							$ecode = 1058;
-							self::$log->add($log_level, $ecode.': Cache File: ' . @file_get_contents($dir.$file));
-							self::$log->add($log_level, $ecode.': APPPATH: ' . APPPATH);
-							self::$log->add($log_level, $ecode.': time(): ' . time());
-							self::$log->add($log_level, $ecode.': filemtime: ' . @filemtime($dir.$file));
-							self::$log->add($log_level, $ecode.': (time() - filemtime($dir.$file)): ' . (time() - @filemtime($dir.$file)));
+							error_log($ecode.': Cache File: ' . @file_get_contents($dir.$file));
+							error_log($ecode.': APPPATH: ' . APPPATH);
+							error_log($ecode.': time(): ' . time());
+							error_log($ecode.': filemtime: ' . @filemtime($dir.$file));
+							error_log($ecode.': (time() - filemtime($dir.$file)): ' . (time() - @filemtime($dir.$file)));
 
 							try
 							{
