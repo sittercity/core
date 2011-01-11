@@ -290,7 +290,11 @@ class Kohana_Core {
 				}
 				catch (Exception $e)
 				{
+<<<<<<< HEAD
+					throw new Kohana_Exception('Cound not create cache directory :dir',
+=======
 					throw new Kohana_Exception('Could not create cache directory :dir',
+>>>>>>> kohana-github/3.0/master
 						array(':dir' => Kohana::debug_path($settings['cache_dir'])));
 				}
 			}
@@ -522,11 +526,19 @@ class Kohana_Core {
 			{
 				// Load the class file
 				require $path;
+<<<<<<< HEAD
 
 				// Class has been found
 				return TRUE;
 			}
 
+=======
+
+				// Class has been found
+				return TRUE;
+			}
+
+>>>>>>> kohana-github/3.0/master
 			// Class is not in the filesystem
 			return FALSE;
 		}
@@ -893,12 +905,20 @@ class Kohana_Core {
 
 		if ($lifetime === NULL)
 		{
-			if ($data === NULL)
+			// Use the default lifetime
+			$lifetime = Kohana::$cache_life;
+		}
+
+		if ($data === NULL)
+		{
+			if (is_file($dir.$file))
 			{
-				if (is_file($dir.$file))
+				if ((time() - filemtime($dir.$file)) < $lifetime)
 				{
-					if ((time() - filemtime($dir.$file)) < $lifetime)
+					// Return the cache
+					try
 					{
+<<<<<<< HEAD
 						// Return the cache
 						try
 						{
@@ -923,25 +943,32 @@ class Kohana_Core {
 
 							return NULL;
 						}
+=======
+						return unserialize(file_get_contents($dir.$file));
+>>>>>>> kohana-github/3.0/master
 					}
-					else
+					catch (Exception $e)
 					{
-						try
-						{
-							// Cache has expired
-							unlink($dir.$file);
-						}
-						catch (Exception $e)
-						{
-							// Cache has already been deleted
-							return NULL;
-						}
+						// Cache is corrupt, let return happen normally.
 					}
 				}
-
-				// Cache not found
-				return NULL;
+				else
+				{
+					try
+					{
+						// Cache has expired
+						unlink($dir.$file);
+					}
+					catch (Exception $e)
+					{
+						// Cache has mostly likely already been deleted,
+						// let return happen normally.
+					}
+				}
 			}
+
+			// Cache not found
+			return NULL;
 		}
 
 		if ( ! is_dir($dir))
@@ -959,7 +986,11 @@ class Kohana_Core {
 		try
 		{
 			// Write the cache
+<<<<<<< HEAD
 			return (bool) file_put_contents($dir.$file, serialize($data), LOCK_EX);
+=======
+			return (bool) file_put_contents($dir.$file, $data, LOCK_EX);
+>>>>>>> kohana-github/3.0/master
 		}
 		catch (Exception $e)
 		{
