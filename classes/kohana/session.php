@@ -5,8 +5,8 @@
  * @package    Kohana
  * @category   Session
  * @author     Kohana Team
- * @copyright  (c) 2008-2009 Kohana Team
- * @license    http://kohanaphp.com/license
+ * @copyright  (c) 2008-2010 Kohana Team
+ * @license    http://kohanaframework.org/license
  */
 abstract class Kohana_Session {
 
@@ -15,7 +15,9 @@ abstract class Kohana_Session {
 	 */
 	public static $default = 'native';
 
-	// Session instances
+	/**
+	 * @var  array  session instances
+	 */
 	protected static $instances = array();
 
 	/**
@@ -58,19 +60,29 @@ abstract class Kohana_Session {
 		return Session::$instances[$type];
 	}
 
-	// Cookie name
+	/**
+	 * @var  string  cookie name
+	 */
 	protected $_name = 'session';
 
-	// Cookie lifetime
+	/**
+	 * @var  int  cookie lifetime
+	 */
 	protected $_lifetime = 0;
 
-	// Encrypt session data?
+	/**
+	 * @var  bool  encrypt session data?
+	 */
 	protected $_encrypted = FALSE;
 
-	// Session data
+	/**
+	 * @var  array  session data
+	 */
 	protected $_data = array();
 
-	// Is the session destroyed?
+	/**
+	 * @var  bool  session destroyed?
+	 */
 	protected $_destroyed = FALSE;
 
 	/**
@@ -160,6 +172,34 @@ abstract class Kohana_Session {
 	}
 
 	/**
+	 * Get the current session id, if the session supports it.
+	 *
+	 *     $id = $session->id();
+	 *
+	 * [!!] Not all session types have ids.
+	 *
+	 * @return  string
+	 * @since   3.0.8
+	 */
+	public function id()
+	{
+		return NULL;
+	}
+
+	/**
+	 * Get the current session cookie name.
+	 *
+	 *     $name = $session->name();
+	 *
+	 * @return  string
+	 * @since   3.0.8
+	 */
+	public function name()
+	{
+		return $this->_name;
+	}
+
+	/**
 	 * Get a variable from the session array.
 	 *
 	 *     $foo = $session->get('foo');
@@ -174,9 +214,27 @@ abstract class Kohana_Session {
 	}
 
 	/**
+	 * Get and delete a variable from the session array.
+	 *
+	 *     $bar = $session->get_once('bar');
+	 *
+	 * @param   string  variable name
+	 * @param   mixed   default value to return
+	 * @return  mixed
+	 */
+	public function get_once($key, $default = NULL)
+	{
+		$value = $this->get($key, $default);
+
+		unset($this->_data[$key]);
+
+		return $value;
+	}
+
+	/**
 	 * Set a variable in the session array.
 	 *
-	 *     $session->set('foo');
+	 *     $session->set('foo', 'bar');
 	 *
 	 * @param   string   variable name
 	 * @param   mixed    value
@@ -185,6 +243,22 @@ abstract class Kohana_Session {
 	public function set($key, $value)
 	{
 		$this->_data[$key] = $value;
+
+		return $this;
+	}
+
+	/**
+	 * Set a variable by reference.
+	 *
+	 *     $session->bind('foo', $foo);
+	 *
+	 * @param   string  variable name
+	 * @param   mixed   referenced value
+	 * @return  $this
+	 */
+	public function bind($key, & $value)
+	{
+		$this->_data[$key] =& $value;
 
 		return $this;
 	}

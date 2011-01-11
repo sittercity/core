@@ -8,8 +8,8 @@
  * @package    Unittest
  * @author     Kohana Team
  * @author     BRMatt <matthew@sigswitch.com>
- * @copyright  (c) 2008-2009 Kohana Team
- * @license    http://kohanaphp.com/license
+ * @copyright  (c) 2008-2010 Kohana Team
+ * @license    http://kohanaframework.org/license
  */
 class Kohana_RouteTest extends Kohana_Unittest_TestCase
 {
@@ -20,7 +20,7 @@ class Kohana_RouteTest extends Kohana_Unittest_TestCase
 	{
 		parent::setUp();
 
-		$this->clean_cache_dir();
+		$this->cleanCacheDir();
 	}
 
 	/**
@@ -30,38 +30,7 @@ class Kohana_RouteTest extends Kohana_Unittest_TestCase
 	{
 		parent::tearDown();
 
-		$this->clean_cache_dir();
-	}
-
-	/**
-	 * Removes all kohana related cache files in the cache directory
-	 */
-	public function clean_cache_dir()
-	{
-		$cache_dir = opendir(Kohana::$cache_dir);
-
-		while($dir = readdir($cache_dir))
-		{
-			// Cache files are split into directories based on first two characters of hash
-			if($dir[0] !== '.' AND strlen($dir) === 2)
-			{
-				$cache = opendir(Kohana::$cache_dir.'/'.$dir);
-
-				while($file = readdir($cache))
-				{
-					if($file[0] !== '.')
-					{
-						unlink(Kohana::$cache_dir.'/'.$dir.'/'.$file);
-					}
-				}
-
-				closedir($cache);
-
-				rmdir(Kohana::$cache_dir.'/'.$dir);
-			}
-		}
-
-		closedir($cache_dir);
+		$this->cleanCacheDir();
 	}
 
 	/**
@@ -140,7 +109,7 @@ class Kohana_RouteTest extends Kohana_Unittest_TestCase
 	 * Route::cache() should return FALSE if cached routes could not be found
 	 *
 	 * The cache is cleared before and after each test in setUp tearDown 
-	 * by clean_cache_dir()
+	 * by cleanCacheDir()
 	 * 
 	 * @test
 	 * @covers Route::cache
@@ -242,7 +211,7 @@ class Kohana_RouteTest extends Kohana_Unittest_TestCase
 
 		$matches = $route->matches('welcome/index');
 
-		$this->assertType('array', $matches);
+		$this->assertInternalType('array', $matches);
 		$this->assertArrayHasKey('controller', $matches);
 		$this->assertArrayHasKey('action', $matches);
 		$this->assertArrayNotHasKey('id', $matches);
@@ -265,7 +234,7 @@ class Kohana_RouteTest extends Kohana_Unittest_TestCase
 
 		$matches = $route->matches('');
 
-		$this->assertType('array', $matches);
+		$this->assertInternalType('array', $matches);
 		$this->assertArrayHasKey('controller', $matches);
 		$this->assertArrayHasKey('action', $matches);
 		$this->assertArrayNotHasKey('id', $matches);
@@ -294,12 +263,12 @@ class Kohana_RouteTest extends Kohana_Unittest_TestCase
 
 		$matches = $route->matches('admin');
 
-		$this->assertType('array', $matches);
+		$this->assertInternalType('array', $matches);
 
 		$matches = $route->matches('admin/users/add');
 
-		$this->assertType('array', $matches);
 		$this->assertSame(2, count($matches));
+		$this->assertInternalType('array', $matches);
 		$this->assertArrayHasKey('controller', $matches);
 		$this->assertArrayHasKey('action', $matches);
 	}
@@ -340,7 +309,7 @@ class Kohana_RouteTest extends Kohana_Unittest_TestCase
 		}
 		catch(Exception $e)
 		{
-			$this->assertType('Kohana_Exception', $e);
+			$this->assertInstanceOf('Kohana_Exception', $e);
 			// Check that the error in question is about the controller param
 			$this->assertContains('controller', $e->getMessage());
 		}
