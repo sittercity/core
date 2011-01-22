@@ -394,11 +394,7 @@ class Kohana_Arr {
 						}
 						else
 						{
-							// Find the values that are not already present
-							$diff = array_diff($val, $result[$key]);
-
-							// Indexed arrays are merged to prevent duplicates
-							$result[$key] = array_merge($result[$key], $diff);
+							$result[$key] = Arr::merge($result[$key], $val);
 						}
 					}
 					else

@@ -198,18 +198,18 @@ Class Kohana_ArrTest extends Kohana_Unittest_TestCase
 		return array(
 			// Test how it merges arrays and sub arrays with assoc keys
 			array(
-				array('name' => 'mary', 'children' => array('fred', 'paul', 'sally', 'jane')),
+				array('name' => 'mary', 'children' => array('jane', 'fred', 'paul', 'sally')),
 				array('name' => 'john', 'children' => array('fred', 'paul', 'sally', 'jane')),
 				array('name' => 'mary', 'children' => array('jane')),
 			),
 			// See how it merges sub-arrays with numerical indexes
 			array(
-				array(array('test1','test3'), array('test2','test4')),
+				array(array('test3','test1'), array('test4','test2')),
 				array(array('test1'), array('test2')),
 				array(array('test3'), array('test4')),
 			),
 			array(
-				array('digits' => array(0, 1, 2, 3)),
+				array('digits' => array(2, 3, 0, 1)),
 				array('digits' => array(0, 1)),
 				array('digits' => array(2, 3)),
 			),
@@ -236,6 +236,44 @@ Class Kohana_ArrTest extends Kohana_Unittest_TestCase
 				array('foo'	=> array('bar')),
 				array('foo'	=> 'bar'),
 			),
+			array(
+				array(
+					'foo' => array(
+						0 => array(
+							'foo' => 'bar',
+							'bar' => 'foo',
+							'whoo' => 'hah'
+						),
+						1 => array(
+							'baz' => 'foobar'
+						),
+						2 => array(
+							'barfoo' => 'foobaz'
+						)
+					)
+				),
+				array(
+					'foo' => array(
+						0 => array(
+							'whoo' => 'hah'
+						),
+						1 => array(
+							'baz' => 'foobar'
+						),
+						2 => array(
+							'barfoo' => 'foobaz'
+						)
+					)
+				),
+				array(
+					'foo' => array(
+						0 => array(
+							'foo' => 'bar',
+							'bar' => 'foo',
+						)
+					)
+				)
+			)
 		);
 	}
 
