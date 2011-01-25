@@ -897,7 +897,7 @@ class Kohana_Core {
 			{
 				if (is_file($dir.$file))
 				{
-					if ((time() - filemtime($dir.$file)) < $lifetime)
+					if ((time() - filemtime($dir.$file)) <= $lifetime)
 					{
 						// Return the cache
 						try
@@ -959,7 +959,7 @@ class Kohana_Core {
 		try
 		{
 			// Write the cache
-			return (bool) file_put_contents($dir.$file, serialize($data), LOCK_EX);
+			return (bool) file_put_contents($dir.$file, $data, LOCK_EX);
 		}
 		catch (Exception $e)
 		{
