@@ -45,7 +45,7 @@ class Kohana_DateTest extends Kohana_Unittest_TestCase
 	public function provider_offset()
 	{
 		return array(
-			array(30600, 'Asia/Calcutta', 'America/Argentina/Buenos_Aires'),
+			array(30600, 'Asia/Calcutta', 'America/Argentina/Buenos_Aires', mktime(0, 0, 0, 5, 1, 2010)),
 		);
 	}
 
@@ -62,7 +62,7 @@ class Kohana_DateTest extends Kohana_Unittest_TestCase
 	 */
 	public function test_offset($expected, $remote, $local, $now = NULL)
 	{
-		$this->assertSame($expected, Date::offset($remote, $local, $now));
+		$this->assertSame($expected, Date::offset($remote, $local, $now), Date::offset($remote, $local, $now));
 	}
 
 	/**
