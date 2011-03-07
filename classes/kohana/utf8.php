@@ -166,7 +166,7 @@ class Kohana_UTF8 {
 	 * @uses    UTF8::$server_utf8
 	 */
 	public static function strlen($str)
-	{Kohana::$log->add('error', Kohana::debug(extension_loaded('mbstring')));
+	{
 		if (UTF8::$server_utf8 === TRUE)
 			return mb_strlen($str, Kohana::$charset);
 
