@@ -5,7 +5,7 @@
  * @package    Kohana
  * @category   Session
  * @author     Kohana Team
- * @copyright  (c) 2008-2010 Kohana Team
+ * @copyright  (c) 2008-2011 Kohana Team
  * @license    http://kohanaframework.org/license
  */
 abstract class Kohana_Session {
@@ -18,7 +18,7 @@ abstract class Kohana_Session {
 	/**
 	 * @var  array  session instances
 	 */
-	protected static $instances = array();
+	public static $instances = array();
 
 	/**
 	 * Creates a singleton session of the given type. Some session types
@@ -368,7 +368,7 @@ abstract class Kohana_Session {
 		catch (Exception $e)
 		{
 			// Log & ignore all errors when a write fails
-			Kohana::$log->add(Kohana::ERROR, Kohana::exception_text($e))->write();
+			Kohana::$log->add(Log::ERROR, Kohana_Exception::text($e))->write();
 
 			return FALSE;
 		}
