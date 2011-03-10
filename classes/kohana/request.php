@@ -31,7 +31,24 @@ class Kohana_Request implements HTTP_Request {
 	 */
 	public static $current;
 
-	public static function factory($uri = TRUE, Cache $cache = NULL)
+	/**
+	 * Creates a new request object for the given URI. New requests should be
+	 * created using the [Request::instance] or [Request::factory] methods.
+	 *
+	 *     $request = Request::factory($uri);
+	 *
+	 * If $cache parameter is set, the response for the request will attempt to
+	 * be retrieved from the cache.
+	 *
+	 * @param   string  $uri URI of the request
+	 * @param   Cache   $cache
+	 * @param   array   $injected_routes an array of routes to use, for testing
+	 * @return  void
+	 * @throws  Kohana_Request_Exception
+	 * @uses    Route::all
+	 * @uses    Route::matches
+	 */
+	public static function factory($uri = TRUE, Cache $cache = NULL, $injected_routes = array())
 	{
 		// If this is the initial request
 		if ( ! Request::$initial)
@@ -189,7 +206,7 @@ class Kohana_Request implements HTTP_Request {
 		}
 		else
 		{
-			$request = new Request($uri, $cache);
+			$request = new Request($uri, $cache, $injected_routes);
 		}
 
 		return $request;
@@ -513,7 +530,7 @@ class Kohana_Request implements HTTP_Request {
 	public static function process_uri($uri, $routes = NULL)
 	{
 		// Load routes
-		$routes = ($routes === NULL) ? Route::all() : $routes;
+		$routes = (empty($routes)) ? Route::all() : $routes;
 		$params = NULL;
 
 		foreach ($routes as $name => $route)
@@ -521,21 +538,14 @@ class Kohana_Request implements HTTP_Request {
 			// We found something suitable
 			if ($params = $route->matches($uri))
 			{
-				if ( ! isset($params['uri']))
-				{
-					$params['uri'] = $uri;
-				}
-
-				if ( ! isset($params['route']))
-				{
-					$params['route'] = $route;
-				}
-
-				break;
+				return array(
+					'params' => $params,
+					'route' => $route,
+				);
 			}
 		}
 
-		return $params;
+		return NULL;
 	}
 
 	/**
@@ -623,6 +633,11 @@ class Kohana_Request implements HTTP_Request {
 	protected $_route;
 
 	/**
+	 * @var  Route       array of routes to manually look at instead of the global namespace
+	 */
+	protected $_routes;
+
+	/**
 	 * @var  Kohana_Response  response
 	 */
 	protected $_response;
@@ -698,12 +713,13 @@ class Kohana_Request implements HTTP_Request {
 	 *
 	 * @param   string  $uri URI of the request
 	 * @param   Cache   $cache
+	 * @param   array   $injected_routes an array of routes to use, for testing
 	 * @return  void
 	 * @throws  Kohana_Request_Exception
 	 * @uses    Route::all
 	 * @uses    Route::matches
 	 */
-	public function __construct($uri, Cache $cache = NULL)
+	public function __construct($uri, Cache $cache = NULL, $injected_routes = array())
 	{
 		// Initialise the header
 		$this->_header = new HTTP_Header(array());
@@ -711,15 +727,18 @@ class Kohana_Request implements HTTP_Request {
 		// Remove trailing slashes from the URI
 		$uri = trim($uri, '/');
 
+		// Assign injected routes
+		$this->_injected_routes = $injected_routes;
+
 		// Detect protocol (if present)
 		/**
 		 * @todo   make this smarter, search for localhost etc
 		 */
 		if (strpos($uri, '://') === FALSE)
 		{
-			$params = Request::process_uri($uri);
+			$processed_uri = Request::process_uri($uri, $this->_injected_routes);
 
-			if ( ! $params)
+			if ($processed_uri === NULL)
 			{
 				throw new HTTP_Exception_404('Unable to find a route to match the URI: :uri', array(
 					':uri' => $uri,
@@ -727,10 +746,11 @@ class Kohana_Request implements HTTP_Request {
 			}
 
 			// Store the URI
-			$this->_uri = $params['uri'];
+			$this->_uri = $uri;
 
 			// Store the matching route
-			$this->_route = $params['route'];
+			$this->_route = $processed_uri['route'];
+			$params = $processed_uri['params'];
 
 			// Is this route external?
 			$this->_external = $this->_route->is_external();
@@ -756,7 +776,7 @@ class Kohana_Request implements HTTP_Request {
 			}
 
 			// These are accessible as public vars and can be overloaded
-			unset($params['controller'], $params['action'], $params['directory'], $params['uri'], $params['route']);
+			unset($params['controller'], $params['action'], $params['directory']);
 
 			// Params cannot be changed once matched
 			$this->_params = $params;
