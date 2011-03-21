@@ -510,7 +510,7 @@ class Kohana_Request implements HTTP_Request {
 	public static function post_max_size_exceeded()
 	{
 		// Make sure the request method is POST
-		if (Request::$method !== 'POST')
+		if (Request::$initial->method() !== HTTP_Request::POST)
 			return FALSE;
 
 		// Get the post_max_size in bytes
@@ -724,9 +724,6 @@ class Kohana_Request implements HTTP_Request {
 		// Initialise the header
 		$this->_header = new HTTP_Header(array());
 
-		// Remove trailing slashes from the URI
-		$uri = trim($uri, '/');
-
 		// Assign injected routes
 		$this->_injected_routes = $injected_routes;
 
@@ -736,6 +733,9 @@ class Kohana_Request implements HTTP_Request {
 		 */
 		if (strpos($uri, '://') === FALSE)
 		{
+			// Remove trailing slashes from the URI
+			$uri = trim($uri, '/');
+
 			$processed_uri = Request::process_uri($uri, $this->_injected_routes);
 
 			if ($processed_uri === NULL)
