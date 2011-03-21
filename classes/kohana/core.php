@@ -865,55 +865,58 @@ class Kohana_Core {
 
 		if ($lifetime === NULL)
 		{
-			if ($data === NULL)
+			// Use the default lifetime
+			$lifetime = Kohana::$cache_life;
+		}
+
+		if ($data === NULL)
+		{
+			if (is_file($dir.$file))
 			{
-				if (is_file($dir.$file))
+				if ((time() - filemtime($dir.$file)) < $lifetime)
 				{
-					if ((time() - filemtime($dir.$file)) < $lifetime)
+					// Return the cache
+					try
 					{
-						// Return the cache
-						try
-						{
-							return unserialize(file_get_contents($dir.$file));
-						}
-						catch (Exception $e)
-						{
-							// Log some things
-							$ecode = 1058;
-							error_log($ecode.': Cache File: ' . @file_get_contents($dir.$file));
-							error_log($ecode.': APPPATH: ' . APPPATH);
-							error_log($ecode.': time(): ' . time());
-							error_log($ecode.': filemtime: ' . @filemtime($dir.$file));
-							error_log($ecode.': (time() - filemtime($dir.$file)): ' . (time() - @filemtime($dir.$file)));
-
-							try
-							{
-								// Cache has expired
-								unlink($dir.$file);
-							}
-							catch (Exception $e) {}
-
-							return NULL;
-						}
+						return unserialize(file_get_contents($dir.$file));
 					}
-					else
+					catch (Exception $e)
 					{
+						// Log some things
+						$ecode = 1058;
+						error_log($ecode.': Cache File: ' . @file_get_contents($dir.$file));
+						error_log($ecode.': APPPATH: ' . APPPATH);
+						error_log($ecode.': time(): ' . time());
+						error_log($ecode.': filemtime: ' . @filemtime($dir.$file));
+						error_log($ecode.': (time() - filemtime($dir.$file)): ' . (time() - @filemtime($dir.$file)));
+
 						try
 						{
 							// Cache has expired
 							unlink($dir.$file);
 						}
-						catch (Exception $e)
-						{
-							// Cache has already been deleted
-							return NULL;
-						}
+						catch (Exception $e) {}
+
+						return NULL;
 					}
 				}
-
-				// Cache not found
-				return NULL;
+				else
+				{
+					try
+					{
+						// Cache has expired
+						unlink($dir.$file);
+					}
+					catch (Exception $e)
+					{
+						// Cache has mostly likely already been deleted,
+						// let return happen normally.
+					}
+				}
 			}
+
+			// Cache not found
+			return NULL;
 		}
 
 		if ( ! is_dir($dir))
@@ -931,7 +934,7 @@ class Kohana_Core {
 		try
 		{
 			// Write the cache
-			return (bool) file_put_contents($dir.$file, serialize($data), LOCK_EX);
+			return (bool) file_put_contents($dir.$file, $data, LOCK_EX);
 		}
 		catch (Exception $e)
 		{
